@@ -1,0 +1,791 @@
+<!doctype html>
+<html lang="ko">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DTC2024 JavaScript 강의 2</title>
+  <meta name="description" content="2024 DTC 신입 대상 JavaScript 강의 슬라이드 (2강)">
+  <link rel="icon" type="image/svg+xml" href="/javascript.svg">
+  <script type="module" src="/main.js"></script>
+</head>
+
+<body>
+<div class="reveal">
+  <div class="slides">
+
+    <section data-transition="zoom">
+      <h1>JavaScript</h1>
+      <p class="subtitle">2강 &mdash; class, 비동기, DOM</p>
+      <p class="byline">2024 DTC &middot; 추희도</p>
+    </section>
+
+    <section data-transition="convex">
+
+      <section>
+        <h3 class="slide-title">슬라이드 보는 법</h3>
+        <table class="keys">
+          <tr><td>&rarr; / Space</td><td>다음으로</td></tr>
+          <tr><td>&larr;</td><td>이전으로</td></tr>
+          <tr><td>&darr; / &uarr;</td><td>같은 주제 안에서 단계 이동</td></tr>
+          <tr><td>O</td><td>전체 슬라이드 한눈에 보기</td></tr>
+          <tr><td>S</td><td>발표자 노트</td></tr>
+          <tr><td>F</td><td>전체화면</td></tr>
+        </table>
+        <p class="hint">아래쪽 화살표가 보이면 그 주제는 단계별로 이어집니다</p>
+      </section>
+
+      <section>
+        <h3 class="slide-title">오늘 끝나면 할 수 있는 것</h3>
+        <ul class="goals">
+          <li>비슷한 객체를 찍어내는 틀을 만든다 &mdash; class</li>
+          <li>시간을 두고 실행되는 코드를 다룬다</li>
+          <li>비동기 결과를 기다렸다가 처리한다</li>
+          <li>JavaScript로 화면을 바꾼다 &mdash; DOM</li>
+          <li>사용자의 클릭에 반응한다 &mdash; 이벤트</li>
+        </ul>
+        <aside class="notes">1강이 문법이었다면 2강은 실제로 뭔가를 움직이게 만드는 시간이라고 안내.</aside>
+      </section>
+
+      <section>
+        <h3 class="slide-title">1강 복습</h3>
+        <table class="summary">
+          <tr><td>const / let</td><td>값에 이름 붙이기</td></tr>
+          <tr><td>{ }</td><td>객체 &mdash; 이름으로 꺼낸다</td></tr>
+          <tr><td>function / =&gt;</td><td>묶어서 재사용하기</td></tr>
+        </table>
+        <p class="hint">오늘은 여기서 이어집니다</p>
+        <aside class="notes">객체와 함수를 기억하는지 확인하고 넘어갈 것. 오늘 내용이 전부 이 둘 위에 얹힌다.</aside>
+      </section>
+
+    </section>
+
+    <section data-transition="convex">
+
+      <section>
+        <h3 class="slide-title">오늘 배울 것</h3>
+        <ul class="toc">
+          <li>12. class</li>
+          <li>13. Timeout &amp; Interval</li>
+          <li>14. Promise</li>
+          <li>15. async &amp; await</li>
+          <li>16. DOM 조작</li>
+          <li>17. 이벤트</li>
+        </ul>
+        <aside class="notes">13~15가 비동기 한 덩어리, 16~17이 화면 조작 한 덩어리라고 묶어서 안내.</aside>
+      </section>
+
+    </section>
+
+    <section data-transition="convex">
+
+      <section>
+        <h2>12. class</h2><p class="lead">비슷한 객체를 여러 개 만들려면</p>
+      </section>
+
+      <section>
+        <h3 class="slide-title">12. class</h3>
+        <pre>
+          <code class="language-javascript" data-trim>
+            const rabbit = {
+              height: "100cm",
+              weight: "5kg"
+            };
+          </code>
+        </pre>
+        <aside class="notes">토끼가 한 마리면 객체로 충분하다. 백 마리면?</aside>
+      </section>
+
+      <section>
+        <h3 class="slide-title">12. class <span class="tag">문제</span></h3>
+        <div class="split">
+          <pre>
+            <code class="language-javascript" data-trim>
+              const r1 = { height: "100cm", weight: "5kg" };
+              const r2 = { height: "80cm", weight: "4kg" };
+              const r3 = { height: "95cm", weight: "6kg" };
+              // ...
+            </code>
+          </pre>
+          <div class="demo console" data-label="콘솔">
+            <div class="ln">같은 모양을 계속 반복해서 쓰게 된다</div>
+          </div>
+        </div>
+        <p class="ask">토끼가 백 마리면 어떻게 할까요?</p>
+        <aside class="notes">복사 붙여넣기가 반복되면 틀을 만들 때가 된 것이다.</aside>
+      </section>
+
+      <section>
+        <h3 class="slide-title">12. class <span class="tag">틀 만들기</span></h3>
+        <pre>
+          <code class="language-javascript" data-trim>
+            class Rabbit {
+              constructor({ height, weight }) {
+                this.height = height;
+                this.weight = weight;
+              }
+            }
+
+            const rabbit = new Rabbit({
+              height: "100cm",
+              weight: "5kg"
+            });
+          </code>
+        </pre>
+        <aside class="notes">constructor는 new로 만들 때 딱 한 번 실행된다. this는 지금 만들어지는 그 객체를 가리킨다.</aside>
+      </section>
+
+      <section>
+        <h3 class="slide-title">12. class <span class="tag">꺼내기</span></h3>
+        <div class="split">
+          <pre>
+            <code class="language-javascript" data-trim>
+              const rabbit = new Rabbit({
+                height: "100cm",
+                weight: "5kg"
+              });
+
+              rabbit.height;
+            </code>
+          </pre>
+          <div class="demo values" data-label="값">
+            <div class="row"><code>rabbit.height</code><span>"100cm"</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h3 class="slide-title">12. class <span class="tag">메서드</span></h3>
+        <div class="split">
+          <pre>
+            <code class="language-javascript" data-trim>
+              class Rabbit {
+                constructor({ height, weight }) {
+                  this.height = height;
+                  this.weight = weight;
+                }
+
+                jump() {
+                  console.log("점프함");
+                }
+              }
+
+              const rabbit = new Rabbit({ height: "100cm" });
+              rabbit.jump();
+            </code>
+          </pre>
+          <div class="demo console" data-label="콘솔">
+            <div class="ln">점프함</div>
+          </div>
+        </div>
+        <aside class="notes">class 안에 넣은 함수를 메서드라고 부른다. 그 틀로 만든 객체라면 전부 쓸 수 있다.</aside>
+      </section>
+
+      <section>
+        <h3 class="slide-title">12. 정리</h3>
+        <ul class="summary-card">
+          <li><code class="inline">class</code> &mdash; 객체를 찍어내는 틀</li>
+          <li><code class="inline">constructor</code> &mdash; <code class="inline">new</code>로 만들 때 한 번 실행</li>
+          <li><code class="inline">this</code> &mdash; 지금 만들어지는 그 객체</li>
+          <li>안에 정의한 함수를 <strong>메서드</strong>라고 한다</li>
+        </ul>
+      </section>
+
+    </section>
+
+    <section data-transition="convex">
+
+      <section>
+        <h2>13. Timeout &amp; Interval</h2><p class="lead">지금이 아니라 나중에 실행하려면</p>
+      </section>
+
+      <section>
+        <h3 class="slide-title">13. Timeout &amp; Interval</h3>
+        <pre>
+          <code class="language-javascript" data-trim>
+            setTimeout(() =&gt; {
+              // 실행할 코드
+            }, ms);
+
+            setInterval(() =&gt; {
+              // 실행할 코드
+            }, ms);
+          </code>
+        </pre>
+        <aside class="notes">ms는 밀리초. 1000이면 1초다.</aside>
+      </section>
+
+      <section>
+        <h3 class="slide-title">13. Timeout &amp; Interval <span class="tag">setTimeout</span></h3>
+        <pre>
+          <code class="language-javascript" data-trim>
+            setTimeout(() =&gt; {
+              console.log(1);
+            }, 1000);
+
+            console.log(2);
+          </code>
+        </pre>
+        <p class="ask">여기서 1과 2 중 뭐가 먼저 나올까요?</p>
+        <aside class="notes">출력 순서를 예상시킬 것. 대부분 1 다음 2라고 답한다.</aside>
+      </section>
+
+      <section>
+        <h3 class="slide-title">13. Timeout &amp; Interval <span class="tag">setTimeout</span></h3>
+        <div class="split">
+          <pre>
+            <code class="language-javascript" data-trim>
+              setTimeout(() =&gt; {
+                console.log(1);
+              }, 1000);
+
+              console.log(2);
+            </code>
+          </pre>
+          <div class="demo console" data-label="콘솔">
+            <div class="ln">2</div>
+            <div class="ln">1   ← 1초 뒤</div>
+          </div>
+        </div>
+        <aside class="notes">2가 먼저 나온다. 기다리는 동안 멈춰 있지 않고 다음 줄로 넘어가기 때문. 이게 비동기의 첫 경험이다.</aside>
+      </section>
+
+      <section>
+        <h3 class="slide-title">13. Timeout &amp; Interval <span class="tag">setInterval</span></h3>
+        <div class="split">
+          <pre>
+            <code class="language-javascript" data-trim>
+              setInterval(() =&gt; {
+                console.log(1);
+              }, 1000);
+
+              console.log(2);
+            </code>
+          </pre>
+          <div class="demo console" data-label="콘솔 (계속)">
+            <div class="ln">2</div>
+            <div class="ln">1</div>
+            <div class="ln">1</div>
+            <div class="ln">1</div>
+            <div class="ln">1</div>
+            <div class="ln">…</div>
+          </div>
+        </div>
+        <aside class="notes">setInterval은 멈추라고 할 때까지 계속 반복한다.</aside>
+      </section>
+
+      <section>
+        <h3 class="slide-title">13. Timeout &amp; Interval <span class="tag">멈추기</span></h3>
+        <div class="split">
+          <pre>
+            <code class="language-javascript" data-trim>
+              const timer = setInterval(() =&gt; {
+                console.log(1);
+              }, 1000);
+
+              setTimeout(() =&gt; {
+                clearInterval(timer);
+              }, 5500);
+            </code>
+          </pre>
+          <div class="demo console" data-label="콘솔">
+            <div class="ln">1</div>
+            <div class="ln">1</div>
+            <div class="ln">1</div>
+            <div class="ln">1</div>
+            <div class="ln">1</div>
+          </div>
+        </div>
+        <aside class="notes">setInterval이 돌려준 값을 변수에 담아뒀다가 clearInterval에 넘긴다. 이 값이 타이머의 이름표다.</aside>
+      </section>
+
+      <section>
+        <h3 class="slide-title">13. 정리</h3>
+        <div class="compare">
+          <div><span class="tag-lang">setTimeout</span><p>한 번만 실행</p><em>clearTimeout으로 취소</em></div>
+          <div><span class="tag-lang">setInterval</span><p>간격을 두고 계속</p><em>clearInterval로 정지</em></div>
+        </div>
+      </section>
+
+    </section>
+
+    <section data-transition="convex">
+
+      <section>
+        <h2>14. Promise</h2><p class="lead">언젠가 끝날 작업을 다루려면</p>
+      </section>
+
+      <section>
+        <h3 class="slide-title">14. Promise</h3>
+        <p class="lead">서버에서 자료를 받아오는 데<br/>1초가 걸린다면?</p>
+        <p class="hint">그동안 화면이 멈춰 있으면 안 된다</p>
+        <aside class="notes">왜 Promise가 필요한지부터. 기다리는 동안에도 화면은 움직여야 한다.</aside>
+      </section>
+
+      <section>
+        <h3 class="slide-title">14. Promise <span class="tag">상태</span></h3>
+        <ul class="summary-card states">
+          <li><strong>pending</strong> &mdash; 대기. 아직 안 끝남</li>
+          <li><strong>fulfilled</strong> &mdash; 이행. 성공으로 끝남</li>
+          <li><strong>rejected</strong> &mdash; 거부. 실패로 끝남</li>
+        </ul>
+        <p class="hint">Promise가 가지는 세 가지 상태</p>
+        <aside class="notes">pending에서 시작해 fulfilled 아니면 rejected로 딱 한 번 바뀐다. 되돌아오지 않는다.</aside>
+      </section>
+
+      <section>
+        <h3 class="slide-title">14. Promise <span class="tag">만들기</span></h3>
+        <pre>
+          <code class="language-javascript" data-trim>
+            const promise = new Promise((resolve, reject) =&gt; {
+              let success = true;
+              if (success) {
+                resolve("이행됨");
+              } else {
+                reject("거부됨");
+              }
+            });
+          </code>
+        </pre>
+        <aside class="notes">resolve를 부르면 fulfilled, reject를 부르면 rejected가 된다.</aside>
+      </section>
+
+      <section>
+        <h3 class="slide-title">14. Promise <span class="tag">받기</span></h3>
+        <div class="split">
+          <pre>
+            <code class="language-javascript" data-trim>
+              promise
+                .then((message) =&gt; {
+                  console.log(message);
+                })
+                .catch((message) =&gt; {
+                  console.error(message);
+                });
+            </code>
+          </pre>
+          <div class="demo console" data-label="콘솔">
+            <div class="ln">이행됨</div>
+          </div>
+        </div>
+        <aside class="notes">then은 성공했을 때, catch는 실패했을 때 실행된다. success를 false로 바꾸면 catch 쪽이 실행된다.</aside>
+      </section>
+
+      <section>
+        <h3 class="slide-title">14. Promise <span class="tag">실패</span></h3>
+        <div class="split">
+          <pre>
+            <code class="language-javascript" data-trim>
+              // success = false 로 바꾸면
+
+              promise
+                .then((message) =&gt; {
+                  console.log(message);
+                })
+                .catch((message) =&gt; {
+                  console.error(message);
+                });
+            </code>
+          </pre>
+          <div class="demo console" data-label="콘솔 (에러)">
+            <div class="ln">거부됨</div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h3 class="slide-title">14. 정리</h3>
+        <ul class="summary-card">
+          <li>비동기 작업의 성공/실패를 담는 그릇</li>
+          <li><code class="inline">then</code> &mdash; 성공했을 때</li>
+          <li><code class="inline">catch</code> &mdash; 실패했을 때</li>
+        </ul>
+      </section>
+
+    </section>
+
+    <section data-transition="convex">
+
+      <section>
+        <h2>15. async &amp; await</h2><p class="lead">Promise를 읽기 쉽게 쓰려면</p>
+      </section>
+
+      <section>
+        <h3 class="slide-title">15. async &amp; await <span class="tag">문제</span></h3>
+        <div class="split">
+          <pre>
+            <code class="language-javascript" data-trim>
+              fetch(url)
+                .then((response) =&gt; response.json())
+                .then((data) =&gt; {
+                  console.log(data);
+                })
+                .catch((error) =&gt; {
+                  console.error(error);
+                });
+            </code>
+          </pre>
+          <div class="demo console" data-label="콘솔">
+            <div class="ln">then이 길어질수록 읽기 어려워진다</div>
+          </div>
+        </div>
+        <aside class="notes">then이 계속 이어지면 흐름을 눈으로 따라가기 힘들다.</aside>
+      </section>
+
+      <section>
+        <h3 class="slide-title">15. async &amp; await <span class="tag">같은 코드</span></h3>
+        <pre>
+          <code class="language-javascript" data-trim>
+            async function fetchData() {
+              try {
+                const response = await fetch(url);
+                const data = await response.json();
+                console.log(data);
+              } catch (error) {
+                console.error("Error:", error);
+              }
+            }
+
+            fetchData();
+          </code>
+        </pre>
+        <aside class="notes">위아래로 읽으면 그대로 순서가 된다. then 버전과 하는 일이 완전히 같다는 걸 대조시킬 것.</aside>
+      </section>
+
+      <section>
+        <h3 class="slide-title">15. async &amp; await <span class="tag">규칙</span></h3>
+        <ul class="summary-card">
+          <li><code class="inline">async</code> 함수는 항상 Promise를 반환한다</li>
+          <li><code class="inline">await</code>는 Promise가 끝날 때까지 기다렸다 결과를 꺼낸다</li>
+          <li><code class="inline">await</code>는 <code class="inline">async</code> 함수 안에서만 쓸 수 있다</li>
+        </ul>
+      </section>
+
+      <section>
+        <h3 class="slide-title">15. async &amp; await <span class="tag">반환값</span></h3>
+        <div class="split">
+          <pre>
+            <code class="language-javascript" data-trim>
+              async function hello() {
+                return "안녕";
+              }
+
+              hello();
+              hello().then((v) =&gt; console.log(v));
+            </code>
+          </pre>
+          <div class="demo values" data-label="값">
+            <div class="row"><code>hello()</code><span>Promise { "안녕" }</span></div>
+            <div class="row"><code>then 안의 v</code><span>"안녕"</span></div>
+          </div>
+        </div>
+        <aside class="notes">async를 붙이는 순간 반환값이 Promise로 감싸진다. 그래서 값을 꺼내려면 await나 then이 필요하다.</aside>
+      </section>
+
+      <section>
+        <h3 class="slide-title">15. 정리</h3>
+        <div class="compare">
+          <div><span class="tag-lang">then / catch</span><p>이어 붙이는 방식</p><em>길어지면 읽기 어렵다</em></div>
+          <div><span class="tag-lang">async / await</span><p>위에서 아래로</p><em>try/catch로 오류 처리</em></div>
+        </div>
+        <aside class="notes">둘은 같은 것이다. async/await는 Promise를 편하게 쓰는 문법일 뿐.</aside>
+      </section>
+
+    </section>
+
+    <section data-transition="convex">
+
+      <section>
+        <h2>16. DOM 조작</h2><p class="lead">JavaScript로 화면을 바꾸려면</p>
+      </section>
+
+      <section>
+        <h3 class="slide-title">16. DOM 조작</h3>
+        <p class="lead">DOM<br/>= Document Object Model</p>
+        <aside class="notes">브라우저가 HTML을 읽어서 JavaScript가 만질 수 있는 객체로 바꿔놓은 것. 그게 DOM이다.</aside>
+      </section>
+
+      <section>
+        <h3 class="slide-title">16. DOM 조작</h3>
+        <p class="lead">HTML 문서를<br/>JavaScript가 다룰 수 있는 <strong>객체</strong>로 만든 것</p>
+        <p class="hint">그래서 <code class="inline">document.</code> 으로 시작한다</p>
+      </section>
+
+      <section>
+        <h3 class="slide-title">16. DOM 조작 <span class="tag">찾기</span></h3>
+        <pre>
+          <code class="language-javascript" data-trim>
+            document.getElementById()
+            document.getElementsByTagName()
+            document.getElementsByClassName()
+            document.querySelector()
+            document.querySelectorAll()
+          </code>
+        </pre>
+        <aside class="notes">다섯 개나 되지만 요즘은 아래 두 개만 써도 충분하다.</aside>
+      </section>
+
+      <section>
+        <h3 class="slide-title">16. DOM 조작 <span class="tag">태그로</span></h3>
+        <div class="split">
+          <pre>
+            <code class="language-javascript" data-trim>
+              // 대상 HTML
+              // &lt;p&gt;첫 번째&lt;/p&gt;
+              // &lt;p&gt;두 번째&lt;/p&gt;
+
+              let obj = document.getElementsByTagName("p");
+
+              obj[0];
+              obj[1];
+            </code>
+          </pre>
+          <div class="demo values" data-label="값">
+            <div class="row"><code>obj[0]</code><span>&lt;p&gt;첫 번째&lt;/p&gt;</span></div>
+            <div class="row"><code>obj[1]</code><span>&lt;p&gt;두 번째&lt;/p&gt;</span></div>
+          </div>
+        </div>
+        <aside class="notes">Elements(복수)로 끝나면 여러 개가 담긴 목록이 나온다. 배열처럼 번호로 꺼낸다.</aside>
+      </section>
+
+      <section>
+        <h3 class="slide-title">16. DOM 조작 <span class="tag">querySelector</span></h3>
+        <div class="split">
+          <pre>
+            <code class="language-javascript" data-trim>
+              // CSS 선택자를 그대로 쓴다
+
+              document.querySelector("#title");
+              document.querySelector(".msg");
+              document.querySelectorAll(".msg");
+            </code>
+          </pre>
+          <div class="demo values" data-label="값">
+            <div class="row"><code>#title</code><span>h1 하나</span></div>
+            <div class="row"><code>.msg</code><span>첫 번째 p 하나</span></div>
+            <div class="row"><code>querySelectorAll</code><span>p 전부</span></div>
+          </div>
+        </div>
+        <aside class="notes">CSS 강의에서 배운 # 과 . 을 그대로 쓴다. querySelector는 첫 하나만, All은 전부.</aside>
+      </section>
+
+      <section>
+        <h3 class="slide-title">16. DOM 조작 <span class="tag">글자 바꾸기</span></h3>
+        <div class="split">
+          <pre>
+            <code class="language-javascript" data-trim>
+              const title = document.querySelector("#title");
+
+              title.textContent = "반갑습니다";
+            </code>
+          </pre>
+          <div class="demo browser" data-label="브라우저 화면">
+            <h1>반갑습니다</h1>
+            <p>첫 번째 문단</p>
+            <p>두 번째 문단</p>
+          </div>
+        </div>
+        <aside class="notes">여기서 처음으로 화면이 실제로 바뀐다. 직접 시연해줄 것.</aside>
+      </section>
+
+      <section>
+        <h3 class="slide-title">16. DOM 조작 <span class="tag">스타일 바꾸기</span></h3>
+        <div class="split">
+          <pre>
+            <code class="language-javascript" data-trim>
+              const title = document.querySelector("#title");
+
+              title.style.color = "tomato";
+              title.style.fontSize = "3rem";
+            </code>
+          </pre>
+          <div class="demo browser" data-label="브라우저 화면">
+            <h1 style="color:tomato; font-size:2em;">안녕하세요</h1>
+            <p>첫 번째 문단</p>
+            <p>두 번째 문단</p>
+          </div>
+        </div>
+        <aside class="notes">CSS의 font-size가 JS에서는 fontSize가 된다. 하이픈을 못 쓰니 낙타등 표기로 바꾼다.</aside>
+      </section>
+
+      <section>
+        <h3 class="slide-title">16. DOM 조작 <span class="tag">내용 갈아끼우기</span></h3>
+        <div class="split">
+          <pre>
+            <code class="language-javascript" data-trim>
+              const box = document.querySelector("#list");
+
+              box.innerHTML = "&lt;p&gt;새로 넣은 문단&lt;/p&gt;";
+            </code>
+          </pre>
+          <div class="demo browser" data-label="브라우저 화면">
+            <p>새로 넣은 문단</p>
+          </div>
+        </div>
+        <aside class="notes">innerHTML은 HTML째로 바꾼다. 편하지만 사용자 입력을 그대로 넣으면 위험하다는 점은 언급만 하고 넘어갈 것.</aside>
+      </section>
+
+      <section>
+        <h3 class="slide-title">16. 정리</h3>
+        <table class="summary">
+          <tr><td>querySelector</td><td>CSS 선택자로 하나 찾기</td></tr>
+          <tr><td>querySelectorAll</td><td>조건에 맞는 것 전부 찾기</td></tr>
+          <tr><td>textContent</td><td>글자만 바꾸기</td></tr>
+          <tr><td>innerHTML</td><td>HTML째로 바꾸기</td></tr>
+          <tr><td>style.속성</td><td>스타일 바꾸기 (fontSize처럼)</td></tr>
+        </table>
+      </section>
+
+    </section>
+
+    <section data-transition="convex">
+
+      <section>
+        <h2>17. 이벤트</h2><p class="lead">사용자의 동작에 반응하려면</p>
+      </section>
+
+      <section>
+        <h3 class="slide-title">17. 이벤트</h3>
+        <p class="lead">지금까지는 코드를 <strong>내가</strong> 실행했습니다</p>
+        <p class="hint">이제는 사용자가 버튼을 눌렀을 때 실행되게 만듭니다</p>
+        <aside class="notes">여기까지 오면 드디어 웹페이지다운 것이 된다.</aside>
+      </section>
+
+      <section>
+        <h3 class="slide-title">17. 이벤트 <span class="tag">기본형</span></h3>
+        <pre>
+          <code class="language-javascript" data-trim>
+            대상.addEventListener("이벤트이름", () =&gt; {
+              // 그때 실행할 코드
+            });
+          </code>
+        </pre>
+        <aside class="notes">"이 일이 일어나면 이 함수를 실행해줘"라고 미리 등록해두는 것.</aside>
+      </section>
+
+      <section>
+        <h3 class="slide-title">17. 이벤트 <span class="tag">click</span></h3>
+        <div class="split">
+          <pre>
+            <code class="language-javascript" data-trim>
+              const btn = document.querySelector("#btn");
+
+              btn.addEventListener("click", () =&gt; {
+                console.log("눌렸다");
+              });
+            </code>
+          </pre>
+          <div class="demo console" data-label="콘솔 (누를 때마다)">
+            <div class="ln">눌렸다</div>
+            <div class="ln">눌렸다</div>
+          </div>
+        </div>
+        <aside class="notes">누를 때마다 실행된다. 직접 눌러 보여줄 것.</aside>
+      </section>
+
+      <section>
+        <h3 class="slide-title">17. 이벤트 <span class="tag">카운터</span></h3>
+        <div class="split">
+          <pre>
+            <code class="language-javascript" data-trim>
+              let count = 0;
+              const btn = document.querySelector("#btn");
+              const out = document.querySelector("#out");
+
+              btn.addEventListener("click", () =&gt; {
+                count++;
+                out.textContent = `${count}번 눌렀습니다`;
+              });
+            </code>
+          </pre>
+          <div class="demo browser" data-label="브라우저 화면">
+            <button>누르기</button>
+            <p>3번 눌렀습니다</p>
+          </div>
+        </div>
+        <aside class="notes">1강의 변수, 증가 연산자, 백틱 문자열이 전부 여기 모인다. 오늘의 완성형 예제.</aside>
+      </section>
+
+      <section>
+        <h3 class="slide-title">17. 자주 쓰는 이벤트</h3>
+        <table class="summary">
+          <tr><td>click</td><td>클릭했을 때</td></tr>
+          <tr><td>input</td><td>입력창에 글자를 칠 때</td></tr>
+          <tr><td>submit</td><td>폼을 제출할 때</td></tr>
+          <tr><td>keydown</td><td>키를 눌렀을 때</td></tr>
+          <tr><td>load</td><td>페이지가 다 불러와졌을 때</td></tr>
+        </table>
+      </section>
+
+      <section>
+        <h3 class="slide-title">17. 정리</h3>
+        <ul class="summary-card">
+          <li><code class="inline">addEventListener</code>로 미리 등록해둔다</li>
+          <li>그 일이 일어나면 등록해둔 함수가 실행된다</li>
+          <li>DOM으로 찾고, 이벤트로 반응하고, DOM으로 바꾼다</li>
+        </ul>
+        <aside class="notes">이 세 줄이 프론트엔드가 하는 일의 전부라고 해도 크게 틀리지 않는다.</aside>
+      </section>
+
+    </section>
+
+    <section data-transition="convex">
+
+      <section>
+        <h2>정리</h2><p class="lead">오늘 배운 것</p>
+      </section>
+
+      <section>
+        <h3 class="slide-title">한눈에</h3>
+        <table class="summary">
+          <tr><td>class</td><td>객체를 찍어내는 틀. constructor, this, 메서드</td></tr>
+          <tr><td>setTimeout</td><td>한 번 나중에</td></tr>
+          <tr><td>setInterval</td><td>간격을 두고 계속. clearInterval로 정지</td></tr>
+          <tr><td>Promise</td><td>pending → fulfilled / rejected</td></tr>
+          <tr><td>then / catch</td><td>성공 / 실패 처리</td></tr>
+          <tr><td>async / await</td><td>같은 일을 위아래로 읽히게</td></tr>
+          <tr><td>querySelector</td><td>화면에서 요소 찾기</td></tr>
+          <tr><td>textContent / style</td><td>찾은 요소 바꾸기</td></tr>
+          <tr><td>addEventListener</td><td>사용자 동작에 반응하기</td></tr>
+        </table>
+      </section>
+
+    </section>
+
+    <section data-transition="convex">
+
+      <section>
+        <h2>실습</h2><p class="lead">직접 만들어봅시다</p>
+      </section>
+
+      <section>
+        <h3 class="slide-title">실습 과제</h3>
+        <ol class="toc">
+          <li>버튼을 누르면 숫자가 1씩 올라가는 카운터</li>
+          <li>1초마다 남은 시간이 줄어드는 타이머 (0에서 정지)</li>
+          <li>입력창에 이름을 치면 아래에 인사말이 바로 바뀌는 페이지</li>
+        </ol>
+        <p class="hint">1강의 HTML/CSS 실습 페이지에 얹어보면 좋습니다</p>
+        <aside class="notes">1번은 같이. 2번은 setInterval과 clearInterval을 둘 다 써야 한다. 3번은 input 이벤트.</aside>
+      </section>
+
+      <section>
+        <h3 class="slide-title">더 볼 것</h3>
+        <ul class="toc">
+          <li><a href="https://developer.mozilla.org/ko/docs/Web/API/Document_Object_Model" target="_blank" rel="noreferrer">MDN DOM 문서</a></li>
+          <li><a href="https://ko.javascript.info/" target="_blank" rel="noreferrer">모던 JavaScript 튜토리얼</a></li>
+          <li><a href="https://developer.mozilla.org/ko/docs/Web/API/Element#이벤트" target="_blank" rel="noreferrer">이벤트 목록</a></li>
+        </ul>
+      </section>
+
+      <section data-transition="zoom">
+        <h1>끝</h1><p class="subtitle">수고하셨습니다</p>
+      </section>
+
+    </section>
+
+  </div>
+</div>
+</body>
+
+</html>
